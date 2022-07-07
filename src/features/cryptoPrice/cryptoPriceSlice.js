@@ -62,6 +62,7 @@ export const cryptoPriceSlice = createSlice({
       })
       .addCase(fetchSymbolsAsync.fulfilled, (state, action) => {
         state.status = 'idle';
+        // state.selected_sym = action.payload[0];
         state.symbols = action.payload;
       })
       .addCase(fetchPricesAsync.pending, (state) => {

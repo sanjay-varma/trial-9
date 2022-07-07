@@ -67,7 +67,6 @@ export function CryptoPrice() {
 
 export function PriceCard(props) {
 
-  //const prices = useSelector((state, sym) => { return state?.prices[sym] })
   const prices = useSelector((state) => selectPrices(state, props.sym));
   const dispatch = useDispatch();
 

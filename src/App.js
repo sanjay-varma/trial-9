@@ -1,11 +1,11 @@
 import React from 'react';
-import { CryptoPrice } from './features/cryptoPrice/CryptoPrice'
 import './App.css';
+import { CryptoTrade } from './features/cryptoTrade/CryptoTrade';
 
 function App() {
   return (
     <div className="App">
-      <CryptoPrice />
+      <CryptoTrade />
     </div>
   );
 }
