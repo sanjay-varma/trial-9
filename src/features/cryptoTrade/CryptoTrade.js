@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Alert, TextField, Paper, TableCell, Typography, Button, Grid, TableContainer, TableHead, Table, TableRow } from '@mui/material'
+import { Alert, TextField, Paper, TableCell, Typography, Button, Grid, TableContainer, TableHead, Table, TableRow, TableBody } from '@mui/material'
 
 import {
   launch,
@@ -25,10 +25,10 @@ export function CryptoTrade() {
   const investment_pnl = useSelector(selectInvestmentPnL);
   const dispatch = useDispatch();
 
-  const [tradeQuantity, setTradeQuantity] = useState(0.0)
+  const [tradeQuantity, setTradeQuantity] = useState({})
 
   useEffect(() => {
-    dispatch(launch(base_ccy, 1000000));
+    dispatch(launch(base_ccy, 100000000));
   }, [dispatch, base_ccy])
 
   useEffect(() => {
@@ -68,33 +68,44 @@ export function CryptoTrade() {
               <TableCell />
             </TableRow>
           </TableHead>
-          {portfolio.map((pos) => {
-            const position = { ...pos };
-            return <TableRow key={position.symbol}>
-              <TableCell align='left'>{position?.symbol}</TableCell>
-              <TableCell align='right'>{position?.quantity.toLocaleString('en-US')}</TableCell>
-              <TableCell align='right'>{position?.price.toLocaleString('en-US', { style: 'currency', currency: `${base_ccy}` })}</TableCell>
-              <TableCell align='right'>{position?.value.toLocaleString('en-US', { style: 'currency', currency: `${base_ccy}` })}</TableCell>
-              <TableCell align='right' >
-                <TextField
-                  id="trade-quantity"
-                  label="Quantity"
-                  variant="standard"
-                  defaultValue={0.0}
-                  onChange={(event) => { setTradeQuantity(event.target.value) }}
-                />
-                <Button onClick={() => {
-                  dispatch(trade({ symbol: position?.symbol, side: 'B', quantity: tradeQuantity }))
-                }}>Buy</Button>
-                <Button onClick={() => {
-                  dispatch(trade({ symbol: position?.symbol, side: 'S', quantity: tradeQuantity }))
-                }}>Sell</Button>
-
-              </TableCell>
-              <TableCell />
-            </TableRow>
-          }
-          )}
+          <TableBody>
+            {portfolio.map((pos) => {
+              const position = { ...pos };
+              return <TableRow key={position.symbol}>
+                <TableCell align='left'>{position?.symbol}</TableCell>
+                <TableCell align='right'>{position?.quantity.toLocaleString('en-US')}</TableCell>
+                <TableCell align='right'>{position?.price.toLocaleString('en-US', { style: 'currency', currency: `${base_ccy}` })}</TableCell>
+                <TableCell align='right'>{position?.value.toLocaleString('en-US', { style: 'currency', currency: `${base_ccy}` })}</TableCell>
+                <TableCell align='right' >
+                  <TextField
+                    id="trade-quantity"
+                    label="Quantity"
+                    variant="standard"
+                    defaultValue={0.0}
+                    onChange={(event) => {
+                      const q = { ...tradeQuantity };
+                      if (parseFloat(event.target.value) === NaN)
+                        setTradeQuantity(0)
+                      else {
+                        q[position.symbol] = parseFloat(event.target.value)
+                        setTradeQuantity(q)
+                      }
+                    }}
+                  />
+                  <Button onClick={() => {
+                    if (!isNaN(tradeQuantity[position.symbol]))
+                      dispatch(trade({ symbol: position?.symbol, side: 'B', quantity: tradeQuantity[position.symbol] }))
+                  }}>Buy</Button>
+                  <Button onClick={() => {
+                    if (!isNaN(tradeQuantity[position.symbol]))
+                      dispatch(trade({ symbol: position?.symbol, side: 'S', quantity: tradeQuantity[position.symbol] }))
+                  }}>Sell</Button>
+                </TableCell>
+                <TableCell />
+              </TableRow>
+            }
+            )}
+          </TableBody>
         </Table>
       </TableContainer>
     </div >

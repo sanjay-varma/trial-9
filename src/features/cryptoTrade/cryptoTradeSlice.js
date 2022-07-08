@@ -2,9 +2,9 @@ import { createSlice } from '@reduxjs/toolkit';
 import { fetchSymbols, fetchPrices } from './cryptoTradeAPI';
 
 const initialState = {
-  base_ccy: 'USD',
+  base_ccy: 'INR',
   symbols: [],
-  cash_balance: 1000000.0,
+  cash_balance: 100000000.0,
   invested_amt: 0.0,
   investment_value: 0.0,
   investment_pnl: 0.0,
@@ -103,8 +103,7 @@ export const cryptoTradeSlice = createSlice({
     },
 
     trade: (state, action) => {
-      const { symbol, side, quantity: qty } = action.payload;
-      const quantity = parseFloat(qty);
+      const { symbol, side, quantity } = action.payload;
       const portfolio = { ...state.portfolio };
       const position = { ...portfolio[symbol] };
       portfolio[symbol] = position;
