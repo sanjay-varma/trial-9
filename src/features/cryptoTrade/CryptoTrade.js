@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Alert, TextField, Paper, TableCell, Typography, Button, Grid, TableContainer, TableHead, Table, TableRow, TableBody } from '@mui/material'
+import { Alert, TextField, Paper, TableCell, Typography, Button, Grid, TableContainer, TableHead, Table, TableRow, TableBody, Container, Select, Stack, MenuItem } from '@mui/material'
 
 import {
   launch,
@@ -25,7 +25,9 @@ export function CryptoTrade() {
   const investment_pnl = useSelector(selectInvestmentPnL);
   const dispatch = useDispatch();
 
-  const [tradeQuantity, setTradeQuantity] = useState({})
+  const [tradeQuantity, setTradeQuantity] = useState({});
+  const [reset_ccy, set_reset_ccy] = useState('USD');
+  const [reset_amt, set_reset_amt] = useState(1000000);
 
   useEffect(() => {
     dispatch(launch(base_ccy, 100000000));
@@ -84,7 +86,7 @@ export function CryptoTrade() {
                     defaultValue={0.0}
                     onChange={(event) => {
                       const q = { ...tradeQuantity };
-                      if (parseFloat(event.target.value) === NaN)
+                      if (isNaN(event.target.value))
                         setTradeQuantity(0)
                       else {
                         q[position.symbol] = parseFloat(event.target.value)
@@ -108,6 +110,30 @@ export function CryptoTrade() {
           </TableBody>
         </Table>
       </TableContainer>
+      <Container>
+        <Stack direction='row'>
+          <TextField id='reset-amt'
+            label='Reset Cash Balance'
+            variant='outlined'
+            defaultValue={reset_amt}
+            onChange={(event) => { if (!isNaN(reset_amt)) set_reset_amt(parseFloat(event.target.value)) }}
+          />
+          <Select id='reset-ccy'
+            value={reset_ccy}
+            label='Reset Currency'
+            onChange={(event) => { set_reset_ccy(event.target.value) }}
+          >
+            <MenuItem value='USD'>USD</MenuItem>
+            <MenuItem value='INR'>INR</MenuItem>
+            <MenuItem value='EUR'>EUR</MenuItem>
+            <MenuItem value='JPY'>JPY</MenuItem>
+          </Select>
+          <Button variant='outlined'
+            onClick={() => { dispatch(launch(reset_ccy, reset_amt)) }}
+          >Reset</Button>
+        </Stack>
+      </Container>
+
     </div >
   );
 }

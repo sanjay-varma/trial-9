@@ -2,7 +2,7 @@ import { APIKEY } from '../../config'
 
 export function fetchSymbols() {
   return new Promise((resolve) =>
-    fetch(`https://min-api.cryptocompare.com/data/top/totalvolfull?limit=10&tsym=USD&api_key=${APIKEY}`)
+    fetch(`https://min-api.cryptocompare.com/data/top/mktcapfull?limit=10&tsym=USD&api_key=${APIKEY}`)
       .then((res) => res.json())
       .then((res) => {
         const symbols = res.Data.map((i) => { return i.CoinInfo.Name }, {});

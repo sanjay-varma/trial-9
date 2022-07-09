@@ -10,7 +10,8 @@ const initialState = {
   investment_pnl: 0.0,
   portfolio: {},
   error: '',
-  status: 'idle'
+  status: 'idle',
+  pid: 0
 };
 
 // The function below is called a thunk and allows us to perform async logic. It
@@ -30,6 +31,10 @@ export const cryptoTradeSlice = createSlice({
     // immutable state based off those changes
 
     // Use the PayloadAction type to declare the contents of `action.payload`
+    setPID: (state, action) => {
+      state.pid = action.payload;
+    },
+
     setBaseCurrency: (state, action) => {
       state.base_ccy = action.payload;
     },
@@ -161,7 +166,7 @@ export const cryptoTradeSlice = createSlice({
   },
 });
 
-export const { setBaseCurrency, setSymbols, setPrices, resetError, resetPortfolio, trade } = cryptoTradeSlice.actions;
+export const { setPID, setBaseCurrency, setSymbols, setPrices, resetError, resetPortfolio, trade } = cryptoTradeSlice.actions;
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
@@ -175,23 +180,34 @@ export const selectInvestmentValue = (state) => state?.cryptoTrade?.investment_v
 export const selectInvestmentPnL = (state) => state?.cryptoTrade?.investment_pnl;
 export const selectError = (state) => state?.cryptoTrade?.error;
 export const selectStatus = (state) => state?.cryptoTrade?.status;
+export const selectPID = (state) => state?.cryptoTrade?.pid
 
 // We can also write thunks by hand, which may contain both sync and async logic.
 // Here's an example of conditionally dispatching actions based on current state.
 export const launch = (currency, amount) => (dispatch, getState) => {
-  setBaseCurrency(currency);
-  resetPortfolio(currency, amount);
+  var pid = selectPID(getState())
+  if (pid !== 0) {
+    clearInterval(pid);
+    pid = 0;
+    dispatch(setPID(pid));
+  }
+  dispatch(setBaseCurrency(currency));
+  dispatch(resetPortfolio({ currency: currency, amount: amount }));
   fetchSymbols()
     .then((symbols) => {
       fetchPrices(symbols, currency)
         .then((prices) => {
           dispatch(setPrices(prices));
-          setInterval(() => {
-            fetchPrices(symbols, currency)
-              .then((prices) => {
-                dispatch(setPrices(prices));
-              })
-          }, 3000);
+          pid = selectPID(getState())
+          if (pid === 0) {
+            pid = setInterval(() => {
+              fetchPrices(symbols, currency)
+                .then((prices) => {
+                  dispatch(setPrices(prices));
+                })
+            }, 3000);
+            dispatch(setPID(pid));
+          }
         })
       dispatch(setSymbols(symbols))
     })
